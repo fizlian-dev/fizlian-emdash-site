@@ -20,7 +20,6 @@ interface Props {
 	publishedTime?: string | null;
 	modifiedTime?: string | null;
 	author?: string | null;
-	/** Pass content reference for plugin page contributions on content pages */
 	content?: { collection: string; id: string; slug?: string | null };
 }
 
@@ -36,18 +35,12 @@ const {
 	author,
 	content,
 } = Astro.props;
-const siteTitle = "My Blog";
-// If title already includes site title (from getSeoMeta), use as-is
-const fullTitle = title.includes(siteTitle) ? title : `${title} — ${siteTitle}`;
+const siteTitle = "Acendex";
+const fullTitle = title.includes(siteTitle) ? title : `${title} | ${siteTitle}`;
 
-// Fetch primary menu defined in seed
 const menu = await getMenu("primary");
-
-// Fetch pages for footer
 const { entries: pages } = await getEmDashCollection("pages");
 
-// Build public page context for plugin contributions
-// SEO data is passed here and rendered securely by EmDashHead
 const pageCtx = createPublicPageContext({
 	Astro,
 	kind: content ? "content" : "custom",
@@ -62,8 +55,23 @@ const pageCtx = createPublicPageContext({
 	siteName: siteTitle,
 });
 
-// Check if user is logged in (for showing admin link)
 const isLoggedIn = !!Astro.locals.user;
+
+const navLinks = [
+	{ label: "Home", href: "/" },
+	{ label: "About Us", href: "/pages/about-us" },
+	{ label: "Services", href: "/pages/services", children: [
+		{ label: "Managed IT Services", href: "/pages/managed-services" },
+		{ label: "Private Cloud Computing", href: "/pages/private-cloud-computing" },
+		{ label: "Server Virtualization", href: "/pages/server-virtualization" },
+		{ label: "Business Continuity", href: "/pages/business-continuity" },
+		{ label: "Disaster Recovery", href: "/pages/acendexassure-disaster-recovery" },
+		{ label: "Cybersecurity", href: "/pages/cybersecurity-services-cleveland" },
+	]},
+	{ label: "Blog", href: "/posts" },
+	{ label: "Testimonials", href: "/pages/testimonials" },
+	{ label: "Contact", href: "/pages/contact" },
+];
 ---
 
 <!doctype html>
@@ -74,7 +82,7 @@ const isLoggedIn = !!Astro.locals.user;
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
-			href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&family=JetBrains+Mono:wght@400;500&display=swap"
+			href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&family=Share+Tech&display=swap"
 			rel="stylesheet"
 		/>
 		<title>{fullTitle}</title>
@@ -95,10 +103,42 @@ const isLoggedIn = !!Astro.locals.user;
 	</head>
 	<body>
 		<EmDashBodyStart page={pageCtx} />
+		<!-- Acendex Top Bar -->
+		<div class="acx-topbar">
+			<div class="acx-container acx-topbar-inner">
+				<div class="acx-topbar-left">
+					<span>📞 <a href="tel:2162924878">216.292.GURU (4878)</a></span>
+					<span>✉ <a href="mailto:info@acendex.com">info@acendex.com</a></span>
+				</div>
+				<div class="acx-topbar-right">
+					<a href="https://www.facebook.com/Acendex" target="_blank" rel="noopener">FB</a>
+					<a href="https://www.linkedin.com/company/acendex" target="_blank" rel="noopener">LI</a>
+					<a href="https://twitter.com/acendex" target="_blank" rel="noopener">TW</a>
+				</div>
+			</div>
+		</div>
+		<!-- Acendex Header -->
 		<header class="site-header">
 			<nav class="nav">
-				<a href="/" class="site-title">{siteTitle}</a>
-				<div class="nav-right">
+				<a href="/" class="site-logo">
+					<img src="/images/acendex-logo.png" alt="Acendex" height="50" />
+				</a>
+				<button class="mobile-toggle" id="mobile-toggle" aria-label="Menu">☰</button>
+				<div class="nav-right" id="nav-menu">
+					<div class="nav-links">
+						{navLinks.map((link) => (
+							<div class={`nav-item ${link.children ? 'has-dropdown' : ''}`}>
+								<a href={link.href}>{link.label}</a>
+								{link.children && (
+									<div class="dropdown">
+										{link.children.map((child) => (
+											<a href={child.href}>{child.label}</a>
+										))}
+									</div>
+								)}
+							</div>
+						))}
+					</div>
 					<LiveSearch
 						placeholder="Search..."
 						class="site-search"
@@ -107,22 +147,7 @@ const isLoggedIn = !!Astro.locals.user;
 						resultClass="site-search-result"
 						collections={["posts", "pages"]}
 					/>
-					<div class="nav-links">
-						{
-							menu?.items.map((item) => (
-								<a href={item.url} target={item.target}>
-									{item.label}
-								</a>
-							))
-						}
-					</div>
-					{
-						isLoggedIn && (
-							<a href="/_emdash/admin" class="nav-admin">
-								Admin
-							</a>
-						)
-					}
+					{isLoggedIn && <a href="/_emdash/admin" class="nav-admin">Admin</a>}
 				</div>
 			</nav>
 		</header>
@@ -131,50 +156,37 @@ const isLoggedIn = !!Astro.locals.user;
 			<slot />
 		</main>
 
-		<footer class="site-footer">
+		<footer class="site-footer acx-footer">
 			<div class="footer-inner">
 				<div class="footer-grid">
 					<div class="footer-brand">
-						<a href="/" class="footer-logo">{siteTitle}</a>
-						<p class="footer-tagline">Thoughts, stories, and ideas.</p>
+						<a href="/" class="footer-logo">
+							<img src="/images/acendex-logo.png" alt="Acendex" height="40" />
+						</a>
+						<p class="footer-tagline">Smart design and nimble trouble-shooting mean your IT problems get solved more quickly.</p>
+						<p class="footer-address">3333 Richmond Road, Suite 430<br/>Cleveland, Ohio 44122</p>
+						<p class="footer-phone"><a href="tel:2162924878">216.292.GURU (4878)</a></p>
 					</div>
 					<div class="footer-nav">
-						<h4 class="footer-heading">Navigate</h4>
+						<h4 class="footer-heading">Services</h4>
 						<ul class="footer-links">
-							<li><a href="/">Home</a></li>
-							<li><a href="/posts">All Posts</a></li>
-							{
-								pages.slice(0, 3).map((page) => (
-									<li>
-										<a href={`/pages/${page.data.slug || page.id}`}>
-											{page.data.title}
-										</a>
-									</li>
-								))
-							}
+							<li><a href="/pages/managed-services">Managed IT Services</a></li>
+							<li><a href="/pages/private-cloud-computing">Private Cloud</a></li>
+							<li><a href="/pages/server-virtualization">Server Virtualization</a></li>
+							<li><a href="/pages/business-continuity">Business Continuity</a></li>
+							<li><a href="/pages/cybersecurity-services-cleveland">Cybersecurity</a></li>
 						</ul>
 					</div>
 					<div class="footer-nav">
-						<h4 class="footer-heading">Connect</h4>
+						<h4 class="footer-heading">Company</h4>
 						<ul class="footer-links">
-							{
-								menu?.items.map((item) => (
-									<li>
-										<a
-											href={item.url}
-											target={item.target}
-											rel={
-												item.target === "_blank"
-													? "noopener noreferrer"
-													: undefined
-											}
-										>
-											{item.label}
-										</a>
-									</li>
-								))
-							}
-							<li><a href="/rss.xml">RSS Feed</a></li>
+							<li><a href="/pages/about-us">About Us</a></li>
+							<li><a href="/pages/testimonials">Testimonials</a></li>
+							<li><a href="/posts">Blog</a></li>
+							<li><a href="/pages/contact">Contact</a></li>
+							{pages.slice(0, 2).map((page) => (
+								<li><a href={`/pages/${page.data.slug || page.id}`}>{page.data.title}</a></li>
+							))}
 						</ul>
 					</div>
 					<div class="footer-widgets-section">
@@ -967,6 +979,16 @@ const isLoggedIn = !!Astro.locals.user;
 		</style>
 
 		<script>
+			// Mobile menu toggle
+			const mobileToggle = document.getElementById('mobile-toggle');
+			const navMenu = document.getElementById('nav-menu');
+			if (mobileToggle && navMenu) {
+				mobileToggle.addEventListener('click', () => {
+					navMenu.classList.toggle('open');
+					mobileToggle.textContent = navMenu.classList.contains('open') ? '✕' : '☰';
+				});
+			}
+
 			// ⌘K / Ctrl+K to focus search
 			document.addEventListener("keydown", (e) => {
 				if ((e.metaKey || e.ctrlKey) && e.key === "k") {

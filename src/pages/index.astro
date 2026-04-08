@@ -6,7 +6,6 @@ import PostCard from "../components/PostCard.astro";
 import { getReadingTime } from "../utils/reading-time";
 
 const { entries: posts, cacheHint } = await getEmDashCollection("posts");
-
 Astro.cache.set(cacheHint);
 
 const sortedPosts = posts.toSorted((a, b) => {
@@ -15,434 +14,165 @@ const sortedPosts = posts.toSorted((a, b) => {
 	return dateB - dateA;
 });
 
-// Find the first post with a featured image for the hero
-const featuredPost = sortedPosts.find((p) => p.data.featured_image);
-const featuredIndex = featuredPost ? sortedPosts.indexOf(featuredPost) : -1;
+const recentPosts = sortedPosts.slice(0, 6);
 
-// Get remaining posts (exclude featured if found, limit to 6 for grid)
-const gridPosts = sortedPosts.filter((_, i) => i !== featuredIndex).slice(0, 6);
-
-// Total posts shown = featured (if any) + grid posts
-const totalShown = (featuredPost ? 1 : 0) + gridPosts.length;
-const hasMorePosts = sortedPosts.length > totalShown;
-
-// Fetch tags for featured post (bylines are already hydrated by getEmDashCollection)
-let featuredTags: Array<{ slug: string; label: string }> = [];
-const featuredBylines = featuredPost?.data.bylines ?? [];
-if (featuredPost) {
-	const tags = await getEntryTerms("posts", featuredPost.data.id, "tag");
-	featuredTags = tags.map((t) => ({ slug: t.slug, label: t.label }));
-}
-
-// Fetch tags for grid posts (bylines are already hydrated by getEmDashCollection)
-const gridPostsWithTags = await Promise.all(
-	gridPosts.map(async (post) => {
+const postsWithTags = await Promise.all(
+	recentPosts.map(async (post) => {
 		const tags = await getEntryTerms("posts", post.data.id, "tag");
-		const bylines = post.data.bylines ?? [];
-		return {
-			post,
-			tags: tags.map((t) => ({ slug: t.slug, label: t.label })),
-			bylines,
-		};
+		return { post, tags: tags.map((t) => ({ slug: t.slug, label: t.label })), bylines: post.data.bylines ?? [] };
 	})
 );
-
-// Format date helper
-function formatDate(date: Date | null | undefined) {
-	if (!date) return null;
-	return date.toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-	});
-}
 ---
 
-<Base title="My Blog" description="Welcome to my blog">
-	{
-		posts.length === 0 ? (
-			<section class="empty-state">
-				<h2>No posts yet</h2>
-				<p>Create your first post in the admin panel.</p>
-				<a href="/_emdash/admin/content/posts/new" class="btn">
-					Create a post
-				</a>
-			</section>
-		) : (
-			<div class="home-content">
-				{/* Featured Post - Side by side */}
-				{featuredPost && (
-					<section class="featured-section">
-						<div class="featured-grid">
-							<a href={`/posts/${featuredPost.id}`} class="featured-image-link">
-								<div class="featured-image">
-									<Image image={featuredPost.data.featured_image} />
-								</div>
-							</a>
-							<div class="featured-content">
-								<div class="featured-meta">
-									{featuredBylines.length > 0 && (
-										<>
-											<div class="featured-bylines">
-												{featuredBylines.slice(0, 2).map((credit, index) => (
-													<>
-														{index > 0 && <span class="byline-sep">,</span>}
-														<span class="featured-byline">
-															{credit.byline.avatarMediaId && (
-																<img
-																	src={`/_emdash/api/media/file/${credit.byline.avatarMediaId}`}
-																	alt={credit.byline.displayName}
-																	class="featured-byline-avatar"
-																/>
-															)}
-															<span class="featured-byline-name">
-																{credit.byline.displayName}
-															</span>
-														</span>
-													</>
-												))}
-												{featuredBylines.length > 2 && (
-													<span class="byline-more">
-														+{featuredBylines.length - 2}
-													</span>
-												)}
-											</div>
-											<span class="meta-dot" />
-										</>
-									)}
-									{formatDate(featuredPost.data.publishedAt) && (
-										<time>{formatDate(featuredPost.data.publishedAt)}</time>
-									)}
-									<span class="meta-dot" />
-									<span>
-										{getReadingTime(featuredPost.data.content)} min read
-									</span>
-								</div>
-								<a
-									href={`/posts/${featuredPost.id}`}
-									class="featured-title-link"
-								>
-									<h1 class="featured-title">{featuredPost.data.title}</h1>
-								</a>
-								{featuredPost.data.excerpt && (
-									<p class="featured-excerpt">{featuredPost.data.excerpt}</p>
-								)}
-								{featuredTags.length > 0 && (
-									<div class="featured-tags">
-										{featuredTags.map((tag) => (
-											<a href={`/tag/${tag.slug}`} class="featured-tag">
-												{tag.label}
-											</a>
-										))}
-									</div>
-								)}
-							</div>
-						</div>
-					</section>
-				)}
+<Base title="Managed IT Services Cleveland" description="Acendex provides managed IT services, private cloud computing, cybersecurity, and disaster recovery for businesses in Cleveland, Ohio.">
+	<!-- Hero Section -->
+	<section class="acx-hero">
+		<div class="acx-hero-overlay"></div>
+		<div class="acx-container acx-hero-content">
+			<h1>Smart IT Solutions for<br/>Growing Businesses</h1>
+			<p>Managed IT Services, Private Cloud, Cybersecurity &amp; Disaster Recovery</p>
+			<div class="acx-hero-buttons">
+				<a href="/pages/contact" class="acx-btn acx-btn-primary">Get a Free Consultation</a>
+				<a href="/pages/services" class="acx-btn acx-btn-outline">Our Services</a>
+			</div>
+		</div>
+	</section>
 
-				{/* Latest Posts */}
-				{gridPostsWithTags.length > 0 && (
-					<section class="posts-section">
-						<header class="section-header">
-							<h2 class="section-title">Latest</h2>
-							{hasMorePosts && (
-								<a href="/posts" class="section-link">
-									View all
-								</a>
-							)}
-						</header>
-						<div class="posts-grid">
-							{gridPostsWithTags.map(({ post, tags, bylines }) => (
-								<PostCard
-									title={post.data.title ?? "Untitled"}
-									excerpt={post.data.excerpt}
-									featuredImage={post.data.featured_image}
-									href={`/posts/${post.id}`}
-									date={post.data.publishedAt ?? undefined}
-									readingTime={getReadingTime(post.data.content)}
-									tags={tags}
-									bylines={bylines}
-								/>
-							))}
-						</div>
-					</section>
+	<!-- Services Overview -->
+	<section class="acx-section">
+		<div class="acx-container acx-text-center">
+			<h2 class="acx-section-title">Our IT Services</h2>
+			<p class="acx-section-subtitle">Smart design and nimble trouble-shooting mean your IT problems get solved more quickly.</p>
+			<div class="acx-services-grid">
+				<a href="/pages/managed-services" class="acx-service-card">
+					<div class="acx-service-icon">🖥️</div>
+					<h3>Managed IT Services</h3>
+					<p>Proactive monitoring, maintenance, and support for your entire IT infrastructure.</p>
+				</a>
+				<a href="/pages/private-cloud-computing" class="acx-service-card">
+					<div class="acx-service-icon">☁️</div>
+					<h3>Private Cloud</h3>
+					<p>Secure, scalable cloud solutions tailored to your business needs.</p>
+				</a>
+				<a href="/pages/cybersecurity-services-cleveland" class="acx-service-card">
+					<div class="acx-service-icon">🔒</div>
+					<h3>Cybersecurity</h3>
+					<p>Protect your business from threats with comprehensive security solutions.</p>
+				</a>
+				<a href="/pages/acendexassure-disaster-recovery" class="acx-service-card">
+					<div class="acx-service-icon">🔄</div>
+					<h3>Disaster Recovery</h3>
+					<p>Business continuity planning and rapid recovery when disaster strikes.</p>
+				</a>
+			</div>
+		</div>
+	</section>
+
+	<!-- CTA Section -->
+	<section class="acx-cta-section">
+		<div class="acx-container acx-text-center">
+			<h2>Ready to Transform Your IT?</h2>
+			<p>Contact us today for a free consultation and discover how Acendex can help your business thrive.</p>
+			<a href="/pages/contact" class="acx-btn acx-btn-primary">Contact Us Today</a>
+		</div>
+	</section>
+
+	<!-- Latest Blog Posts -->
+	{postsWithTags.length > 0 && (
+		<section class="acx-section">
+			<div class="acx-container">
+				<div class="acx-text-center" style="margin-bottom: 40px;">
+					<h2 class="acx-section-title">Latest from Our Blog</h2>
+				</div>
+				<div class="posts-grid">
+					{postsWithTags.map(({ post, tags, bylines }) => (
+						<PostCard
+							title={post.data.title ?? "Untitled"}
+							excerpt={post.data.excerpt}
+							featuredImage={post.data.featured_image}
+							href={`/posts/${post.id}`}
+							date={post.data.publishedAt ?? undefined}
+							readingTime={getReadingTime(post.data.content)}
+							tags={tags}
+							bylines={bylines}
+						/>
+					))}
+				</div>
+				{sortedPosts.length > 6 && (
+					<div class="acx-text-center" style="margin-top: 40px;">
+						<a href="/posts" class="acx-btn acx-btn-outline">View All Posts</a>
+					</div>
 				)}
 			</div>
-		)
-	}
+		</section>
+	)}
 </Base>
 
 <style>
-	.home-content {
-		max-width: var(--wide-width);
-		margin: 0 auto;
-		padding: var(--spacing-16) var(--spacing-6);
-	}
-
-	/* Featured Section - Side by side */
-	.featured-section {
-		margin-bottom: var(--spacing-16);
-	}
-
-	.featured-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: var(--spacing-8);
-		align-items: center;
-	}
-
-	.featured-image-link {
-		grid-column: 1 / 3;
-		display: block;
-		/* Extend to viewport edge, but cap at -6rem minimum extension */
-		margin-left: min(
-			-6rem,
-			calc(-1 * (var(--spacing-6) + (100vw - var(--wide-width)) / 2))
-		);
-	}
-
-	.featured-image {
-		overflow: hidden;
-		border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
-		background: var(--color-surface);
-	}
-
-	.featured-image img {
-		width: 100%;
-		height: auto;
-		aspect-ratio: 4 / 3;
-		object-fit: cover;
-		transition: transform 0.4s ease;
-	}
-
-	.featured-image-link:hover .featured-image img,
-	.featured-grid:has(.featured-title-link:hover) .featured-image img {
-		transform: scale(1.02);
-	}
-
-	.featured-content {
-		display: flex;
-		flex-direction: column;
-		gap: var(--spacing-4);
-	}
-
-	.featured-meta {
-		display: flex;
-		align-items: center;
-		flex-wrap: wrap;
-		column-gap: var(--spacing-3);
-		row-gap: var(--spacing-1);
-		font-size: var(--font-size-sm);
-		color: var(--color-muted);
-	}
-
-	.meta-dot {
-		width: 3px;
-		height: 3px;
-		border-radius: 50%;
-		background: var(--color-muted);
-	}
-
-	/* Featured bylines */
-	.featured-bylines {
-		display: flex;
-		align-items: center;
-		gap: 2px;
-	}
-
-	.featured-byline {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--spacing-2);
-	}
-
-	.featured-byline-avatar {
-		width: var(--avatar-size-md);
-		height: var(--avatar-size-md);
-		border-radius: 50%;
-		object-fit: cover;
-	}
-
-	.featured-byline-name {
-		font-weight: 500;
-		color: var(--color-text-secondary);
-	}
-
-	.byline-sep {
-		color: var(--color-muted);
-		margin-right: 2px;
-	}
-
-	.byline-more {
-		font-size: var(--font-size-xs);
-		color: var(--color-muted);
-		margin-left: 2px;
-	}
-
-	.featured-title-link {
-		text-decoration: none;
-		color: inherit;
-	}
-
-	.featured-title {
-		font-size: clamp(var(--font-size-2xl), 4vw, var(--font-size-4xl));
-		font-weight: 700;
-		line-height: var(--leading-tight);
-		letter-spacing: var(--tracking-tight);
-		transition: color var(--transition-fast);
-	}
-
-	.featured-title-link:hover .featured-title,
-	.featured-grid:has(.featured-image-link:hover) .featured-title {
-		color: var(--color-accent);
-	}
-
-	.featured-excerpt {
-		font-size: var(--font-size-lg);
-		line-height: var(--leading-relaxed);
-		color: var(--color-text-secondary);
-	}
-
-	.featured-tags {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--spacing-2);
-		margin-top: var(--spacing-2);
-	}
-
-	.featured-tag {
-		display: inline-block;
-		padding: var(--spacing-1) var(--spacing-3);
-		font-size: var(--font-size-sm);
-		color: var(--color-text-secondary);
-		background: var(--color-surface);
-		border-radius: var(--radius);
-		text-decoration: none;
-		transition:
-			color var(--transition-fast),
-			background var(--transition-fast);
-	}
-
-	.featured-tag:hover {
-		color: var(--color-text);
-		background: var(--color-border);
-	}
-
-	/* Section header */
-	.section-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: baseline;
-		margin-bottom: var(--spacing-8);
-		padding-bottom: var(--spacing-4);
-		border-bottom: 1px solid var(--color-border-subtle);
-	}
-
-	.section-title {
-		font-size: var(--font-size-sm);
-		font-weight: 500;
-		text-transform: uppercase;
-		letter-spacing: var(--tracking-wider);
-		color: var(--color-muted);
-	}
-
-	.section-link {
-		font-size: var(--font-size-sm);
-		color: var(--color-accent);
-		text-decoration: none;
-		transition: color var(--transition-fast);
-	}
-
-	.section-link:hover {
-		color: var(--color-accent-hover);
-	}
-
-	/* Posts Grid */
-	.posts-section {
-	}
-
-	.posts-grid {
-		display: grid;
-		grid-template-columns: repeat(3, 1fr);
-		gap: var(--spacing-12) var(--spacing-8);
-	}
-
-	/* Empty State */
-	.empty-state {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: var(--spacing-3);
+	/* Hero */
+	.acx-hero {
+		position: relative;
+		background: linear-gradient(140deg, var(--acx-blue) 0%, var(--acx-purple) 60%, var(--acx-pink) 100%);
+		padding: 120px 0 100px;
 		text-align: center;
-		padding: var(--spacing-20) var(--spacing-6);
-		max-width: 400px;
-		margin: 0 auto;
+		color: white;
+		overflow: hidden;
 	}
-
-	.empty-state h2 {
-		font-size: var(--font-size-2xl);
-		font-weight: 600;
+	.acx-hero-overlay {
+		position: absolute; inset: 0;
+		background: url('/images/acendex-logo.png') no-repeat center center;
+		background-size: 300px;
+		opacity: 0.05;
 	}
+	.acx-hero-content { position: relative; z-index: 1; }
+	.acx-hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; margin-bottom: 20px; color: white; }
+	.acx-hero p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto; }
+	.acx-hero-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
 
-	.empty-state p {
-		color: var(--color-muted);
+	/* Buttons */
+	.acx-btn {
+		display: inline-block; padding: 14px 32px; border-radius: 4px;
+		font-weight: 600; font-size: 0.95rem; text-decoration: none;
+		transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px;
 	}
+	.acx-btn-primary { background: var(--acx-orange); color: white; }
+	.acx-btn-primary:hover { background: var(--acx-orange-dark); color: white; }
+	.acx-btn-outline { background: transparent; color: white; border: 2px solid white; }
+	.acx-btn-outline:hover { background: white; color: var(--acx-blue); }
 
-	.btn {
-		display: inline-block;
-		margin-top: var(--spacing-4);
-		padding: var(--spacing-3) var(--spacing-6);
-		background: var(--color-accent);
-		color: var(--color-on-accent);
-		text-decoration: none;
-		border-radius: var(--radius);
-		font-size: var(--font-size-sm);
-		font-weight: 500;
-		transition: background var(--transition-fast);
+	/* Section titles */
+	.acx-section-title { font-size: 2rem; color: var(--acx-blue); margin-bottom: 12px; }
+	.acx-section-subtitle { color: var(--color-text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto 40px; }
+
+	/* Services grid */
+	.acx-services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; margin-top: 20px; }
+	.acx-service-card {
+		background: white; border: 1px solid var(--color-border); border-radius: 8px;
+		padding: 40px 24px; text-align: center; text-decoration: none; color: inherit;
+		transition: all 0.3s ease;
 	}
+	.acx-service-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); border-color: var(--acx-blue); }
+	.acx-service-icon { font-size: 2.5rem; margin-bottom: 16px; }
+	.acx-service-card h3 { font-size: 1.15rem; color: var(--acx-blue); margin-bottom: 10px; }
+	.acx-service-card p { font-size: 0.9rem; color: var(--color-text-secondary); line-height: 1.6; }
 
-	.btn:hover {
-		background: var(--color-accent-hover);
+	/* CTA */
+	.acx-cta-section {
+		background: linear-gradient(140deg, var(--acx-blue) 0%, var(--acx-purple) 100%);
+		padding: 80px 0; color: white;
 	}
+	.acx-cta-section h2 { font-size: 2rem; margin-bottom: 16px; color: white; }
+	.acx-cta-section p { font-size: 1.1rem; opacity: 0.9; margin-bottom: 30px; max-width: 500px; margin-left: auto; margin-right: auto; }
 
-	/* Responsive */
-	@media (max-width: 900px) {
-		.home-content {
-			padding: var(--spacing-6) var(--spacing-4) var(--spacing-12);
-		}
+	/* Blog grid */
+	.posts-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
 
-		.featured-image-link {
-			margin-left: 0;
-		}
-
-		.featured-grid {
-			grid-template-columns: 1fr;
-			gap: var(--spacing-6);
-		}
-
-		.featured-image {
-			border-radius: var(--radius-lg);
-		}
-
-		.featured-image img {
-			aspect-ratio: 16 / 9;
-		}
-
-		.posts-grid {
-			grid-template-columns: repeat(2, 1fr);
-			gap: var(--spacing-8) var(--spacing-6);
-		}
+	@media (max-width: 1024px) {
+		.acx-services-grid { grid-template-columns: repeat(2, 1fr); }
+		.posts-grid { grid-template-columns: repeat(2, 1fr); }
 	}
-
-	@media (max-width: 600px) {
-		.featured-title {
-			font-size: var(--font-size-2xl);
-		}
-
-		.posts-grid {
-			grid-template-columns: 1fr;
-			gap: var(--spacing-8);
-		}
+	@media (max-width: 768px) {
+		.acx-services-grid, .posts-grid { grid-template-columns: 1fr; }
+		.acx-hero { padding: 80px 0 60px; }
 	}
 </style>

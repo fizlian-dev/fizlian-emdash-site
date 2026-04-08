@@ -1,110 +1,178 @@
 /*
-  theme.css — override any :root variable here to retheme the blog.
-
-  This is the only file you need to edit to customize the site's visual
-  appearance. All defaults are listed below as comments. Uncomment and
-  change any value to override it.
-
-  Note: this template defines explicit dark mode colors in Base.astro.
-  Overriding light-mode --color-* variables here won't affect dark mode.
-  To customize dark mode, also override --color-* variables inside a
-  @media (prefers-color-scheme: dark) block and/or in the :root.dark rule.
+  Acendex Theme — Divi-inspired design for emdash CMS
+  Migrated from WordPress Divi theme to Cloudflare emdash
 */
 
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700&family=Roboto:wght@300;400;500;700&family=Share+Tech&display=swap');
+
 :root {
-	/* --- Colors ---
-	--color-bg: #ffffff;
-	--color-bg-subtle: #fafafa;
-	--color-text: #1a1a1a;
-	--color-text-secondary: #525252;
-	--color-muted: #8b8b8b;
-	--color-border: #e5e5e5;
-	--color-border-subtle: #f0f0f0;
-	--color-surface: #f7f7f7;
-	--color-accent: #0066cc;
-	--color-accent-hover: #0052a3;
-	--color-on-accent: white;
-	--color-accent-ring: color-mix(in srgb, var(--color-accent) 25%, transparent);
-	*/
+  /* --- Acendex Brand Colors --- */
+  --color-bg: #ffffff;
+  --color-bg-subtle: #edf0f2;
+  --color-text: #333333;
+  --color-text-secondary: #666666;
+  --color-muted: #999999;
+  --color-border: #e0e0e0;
+  --color-border-subtle: #edf0f2;
+  --color-surface: #f7f7f7;
+  --color-accent: #0e368a;
+  --color-accent-hover: #004872;
+  --color-on-accent: white;
+  --color-accent-ring: color-mix(in srgb, var(--color-accent) 25%, transparent);
 
-	/* --- Fonts ---
-	--font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	--font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-	*/
+  /* Acendex brand palette */
+  --acx-blue: #0e368a;
+  --acx-blue-dark: #004872;
+  --acx-purple: #69477d;
+  --acx-purple-light: #9368ac;
+  --acx-pink: #bc2f8c;
+  --acx-orange: #ffa727;
+  --acx-orange-dark: #e8951f;
+  --acx-gray-bg: #edf0f2;
+  --acx-white: #ffffff;
+  --acx-black: #333333;
 
-	/* --- Type scale ---
-	--font-size-xs: 0.8125rem;
-	--font-size-sm: 0.875rem;
-	--font-size-base: 1rem;
-	--font-size-lg: 1.125rem;
-	--font-size-xl: 1.25rem;
-	--font-size-2xl: 1.5rem;
-	--font-size-3xl: 2rem;
-	--font-size-4xl: 2.5rem;
-	--font-size-5xl: 3.5rem;
-	*/
+  /* --- Fonts --- */
+  --font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Roboto', 'Open Sans', sans-serif;
+  --font-accent: 'Share Tech', 'Roboto', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
-	/* --- Line heights ---
-	--leading-tight: 1.15;
-	--leading-snug: 1.3;
-	--leading-normal: 1.5;
-	--leading-relaxed: 1.7;
-	*/
+  /* --- Layout --- */
+  --content-width: 900px;
+  --wide-width: 1280px;
+  --gutter-width: 200px;
+  --meta-col-width: 180px;
+  --nav-height: auto;
+  --search-input-width: 180px;
 
-	/* --- Letter spacing ---
-	--tracking-tight: -0.03em;    used on h1 and large titles
-	--tracking-snug: -0.02em;     used on h2–h6, site/card titles
-	--tracking-wide: 0.06em;      used on meta labels, TOC/widget titles
-	--tracking-wider: 0.08em;     used on footer headings, section labels
-	*/
-
-	/* --- Spacing ---
-	--spacing-1: 0.25rem;
-	--spacing-2: 0.5rem;
-	--spacing-3: 0.75rem;
-	--spacing-4: 1rem;
-	--spacing-5: 1.25rem;
-	--spacing-6: 1.5rem;
-	--spacing-8: 2rem;
-	--spacing-10: 2.5rem;
-	--spacing-12: 3rem;
-	--spacing-16: 4rem;
-	--spacing-20: 5rem;
-	--spacing-24: 6rem;
-	*/
-
-	/* --- Layout ---
-	--content-width: 680px;       article/page body column width
-	--wide-width: 1200px;         max container width (home, archives)
-	--gutter-width: 200px;        right sidebar column (TOC) on article pages
-	--meta-col-width: 180px;      left meta column on article pages
-	--nav-height: 64px;           sticky header height
-	--search-input-width: 180px;  nav search box width
-	*/
-
-	/* --- Borders & radius ---
-	--radius: 4px;
-	--radius-lg: 8px;
-	*/
-
-	/* --- Transitions ---
-	--transition-fast: 120ms ease;
-	--transition-base: 180ms ease;
-	*/
-
-	/* --- Avatars ---
-	--avatar-size-xs: 18px;    card byline avatars
-	--avatar-size-sm: 20px;    post list byline avatars
-	--avatar-size-md: 24px;    featured post byline avatars
-	--avatar-size-lg: 32px;    single post byline avatars
-	*/
-
-	/* --- Shadows ---
-	--shadow-dropdown: 0 8px 30px rgba(0, 0, 0, 0.12);
-	--shadow-btn-active: 0 1px 2px rgba(0, 0, 0, 0.05);
-	*/
-
-	/* --- Misc ---
-	--tag-padding-y: 2px;    vertical padding on tag pills
-	*/
+  /* --- Borders & radius --- */
+  --radius: 4px;
+  --radius-lg: 8px;
 }
+
+/* Override heading font family globally */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
+
+/* Container utility */
+.acx-container {
+  max-width: var(--wide-width);
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Grid utilities */
+.acx-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px; }
+.acx-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+.acx-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 30px; }
+
+@media (max-width: 1024px) {
+  .acx-grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .acx-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .acx-grid-4, .acx-grid-3, .acx-grid-2 { grid-template-columns: 1fr; }
+}
+
+/* Section spacing */
+.acx-section { padding: 60px 0; }
+.acx-section-sm { padding: 30px 0; }
+.acx-section-lg { padding: 80px 0; }
+
+/* Text utilities */
+.acx-text-center { text-align: center; }
+
+/* ===== Acendex Top Bar ===== */
+.acx-topbar {
+  background-color: var(--acx-blue);
+  color: white;
+  font-size: 0.85rem;
+  padding: 6px 0;
+}
+.acx-topbar-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.acx-topbar a { color: white; text-decoration: none; }
+.acx-topbar a:hover { color: var(--acx-orange); }
+.acx-topbar-left { display: flex; gap: 20px; }
+.acx-topbar-right { display: flex; gap: 12px; }
+@media (max-width: 768px) { .acx-topbar { display: none; } }
+
+/* ===== Acendex Nav Overrides ===== */
+.site-logo img { height: 50px; }
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--acx-blue);
+}
+.nav-item { position: relative; }
+.nav-item > a {
+  padding: 8px 0;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  color: var(--acx-black);
+}
+.nav-item > a:hover { color: var(--acx-blue); }
+.has-dropdown > a::after { content: ' ▾'; font-size: 0.7em; }
+.dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  min-width: 220px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  border-radius: 0 0 4px 4px;
+  z-index: 200;
+  padding: 8px 0;
+}
+.has-dropdown:hover .dropdown { display: block; }
+.dropdown a {
+  display: block;
+  padding: 8px 20px;
+  font-size: 0.85rem;
+  color: var(--acx-black);
+  text-decoration: none;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.dropdown a:hover { background: var(--acx-gray-bg); color: var(--acx-blue); }
+
+@media (max-width: 900px) {
+  .mobile-toggle { display: block; }
+  .nav-right { display: none; flex-direction: column; width: 100%; }
+  .nav-right.open { display: flex; }
+  .nav-links { flex-direction: column; gap: 0; }
+  .dropdown { position: static; box-shadow: none; display: block; padding-left: 15px; }
+  .has-dropdown > a::after { content: ''; }
+}
+
+/* ===== Footer extras ===== */
+.footer-address, .footer-phone {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin-top: 8px;
+  line-height: 1.6;
+}
+.footer-phone a { color: var(--acx-blue); }
+
+/* ===== Acendex Page Header ===== */
+.acx-page-header {
+  position: relative;
+  background: linear-gradient(140deg, rgba(14,54,138,0.9) 0%, rgba(105,71,125,0.85) 100%);
+  padding: 80px 0 60px;
+  text-align: center;
+  color: white;
+}
+.acx-page-header h1 { color: white; font-size: 2.5rem; }
